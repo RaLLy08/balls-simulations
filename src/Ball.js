@@ -7,6 +7,7 @@ const Ball = (function() {
         y: 50,
         vx: 9,
         vy: 9,
+        patters: []
     }
 
     return class Ball {
@@ -24,18 +25,13 @@ const Ball = (function() {
             this.y = options.y;
             this.vx = options.vx;
             this.vy = options.vy;
+            this.patters = options.patters;
         }
 
-        move(deps) {
-            const fps = deps.fps / 60;
-
-            this.x += this.vx / fps;
-            this.y += this.vy / fps;
+        callPatterns() {
+            for (const pattern of this.patters) pattern(this);
         }
 
-        changeSpeed() {
-            
-        }
         // get..
     }
 })()

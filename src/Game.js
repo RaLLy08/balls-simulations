@@ -57,7 +57,6 @@ const Game = (function () {
         stop = () => {
             this.isStarted = false;
         }
-
         /**
          * get fps
          */
@@ -100,8 +99,13 @@ const Game = (function () {
         }
 
         init() {
-            const ball = new Ball();
-
+            const ball = new Ball({
+                patters: [
+                    this.moveBall,
+                    this.reboundWalls
+                ]
+            });
+   
             this.balls.addBall(ball);
         }
 
@@ -117,24 +121,19 @@ const Game = (function () {
             const balls = this.balls.getBalls();
 
             for (const ball of balls) {
-                this.moveBall(ball);
+                ball.callPatterns();
 
                 this.drawBall(ball);
             }
         }
 
-        moveBall(ball) {
-            this.reboundWalls(ball)
-
-            ball.move({
-                fps: this.frameRates.getFPS(),
-            });
-
-            // ball.changeSpeed((vx, vy) => {
-
-            //     vx = 10;
-            // })
+        moveBall = (ball) => {
+            // const fpsCoef = this.getFpsCoef();
+      
+            ball.x += ball.vx;
+            ball.y +=  ball.vy;
         }
+
 
         reboundWalls = (ball) => {
             const { width, height } = this.view.getSize();
