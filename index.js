@@ -4,3 +4,4 @@ const startApp = () => {
     new Game(view);
 }
 
+startApp();

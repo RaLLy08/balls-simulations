@@ -2,30 +2,31 @@ const Game = (function () {
     class FrameRates {
         #prevFrame;
         #currentFrame;
+        #callFns = [];
         /**
          * frame delay, default browser requestAnimationFrame ~ 60 fps
          */
         #frameDelay = 'browser';
         /**
-         * frameFn - which will be called every frame
+         * callFns - which will be called every frame
          */
-        constructor(frameFn) {
-            this.callFn = frameFn;
+        constructor(callFns) {
+            this.#callFns = callFns;
             this.isStarted = false;
         }
 
         #callFrame = () => {
             if (!this.isStarted) return;
             
-            this.#callsMeasure();
-            this.callFn();
+            this.#timeBetweenCalls();
+            for (const fn of this.#callFns) fn();
 
             if (this.#frameDelay === 'browser') return window.requestAnimationFrame(this.#callFrame);
 
             setTimeout(this.#callFrame, this.#frameDelay);
         }
 
-        #callsMeasure = () => {
+        #timeBetweenCalls = () => {
             const newFrame = performance.now();
             this.#currentFrame = newFrame - this.#prevFrame;
     
@@ -82,8 +83,6 @@ const Game = (function () {
         getBalls = () => this.#balls;
     }
 
-
-
     class Game {
         /**
          * @param {View} view 
@@ -91,11 +90,15 @@ const Game = (function () {
         constructor(view) {
             this.view = view;
             this.balls = new Balls();
-            this.frameRates = new FrameRates(this.frame);
+            this.frameRates = new FrameRates([
+                this.displayFrames,
+                this.moveBalls,
+                this.view.drawFieldElements,
+            ]);
 
+            this.view.setFieldBalls(this.balls.getBalls()); 
+            
             this.init();
-
-            this.frameRates.start();
         }
 
         init() {
@@ -107,33 +110,21 @@ const Game = (function () {
             });
    
             this.balls.addBall(ball);
+
+            this.frameRates.start();
         }
 
-        frame = () => {
-            this.view.clearRect();
-
-            this.showFrames();
-
-            this.animateBalls();
-        }
-
-        animateBalls() {
+        moveBalls = () => {
             const balls = this.balls.getBalls();
 
-            for (const ball of balls) {
-                ball.callPatterns();
-
-                this.drawBall(ball);
-            }
+            for (const ball of balls) ball.callPatterns();
         }
 
         moveBall = (ball) => {
             // const fpsCoef = this.getFpsCoef();
-      
             ball.x += ball.vx;
             ball.y +=  ball.vy;
         }
-
 
         reboundWalls = (ball) => {
             const { width, height } = this.view.getSize();
@@ -146,16 +137,8 @@ const Game = (function () {
                 ball.vy *= -1;
             }
         }
-
-        drawBall(ball) {
-            this.view.drawPoint({
-                x: ball.x,
-                y: ball.y,
-                r: ball.r,
-            })
-        }
     
-        showFrames() {
+        displayFrames = () => {
             const fps = this.frameRates.getFPS();
     
             this.view.FPSDisplay.displayFPS(fps);

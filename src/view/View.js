@@ -6,7 +6,30 @@ const View = (function() {
                 height: CANVAS_HEIGHT,
             });
             this.FPSDisplay = new FPSDisplay();
+
+            this.fieldElements = {
+                balls: []
+            }
         }
-    
+
+        drawFieldElements = () =>{
+            this.clearRect();
+
+            this.#drawBalls();
+        }
+
+        #drawBalls() {
+            for (const ball of this.fieldElements.balls) {
+                this.drawPoint({
+                    x: ball.x,
+                    y: ball.y,
+                    r: ball.r,
+                })
+            }
+        }
+
+        setFieldBalls = (balls) => {
+            this.fieldElements.balls = balls;
+        }
     }
 })()
