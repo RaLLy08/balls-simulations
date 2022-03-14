@@ -18,6 +18,8 @@ const Canvas = (function(){
             this.#canvas.width = this.options.width;
             this.#canvas.height = this.options.height;
             this.#ctx = this.#canvas.getContext('2d');
+
+            this.#canvas.onclick = (e) => console.log(e.offsetX, e.offsetY)
         }
         /**
          * 
@@ -29,26 +31,40 @@ const Canvas = (function(){
             const { color } = opts || { color: 'black' };
     
             this.#ctx.beginPath()
-            this.#ctx.arc(x, y, r, 0, Math.PI*2);
+            this.#ctx.arc(x, y, r*2, 0, Math.PI*2);
+            // this.#ctx.lineWidth = width;
             this.#ctx.fillStyle = color;
             this.#ctx.fill();
             this.#ctx.closePath();
         }
 
-        drawLine(fromX, fromY, toX, toY, width, color) {
-            this._ctx.beginPath(); 
-            // this._ctx.lineCap = 'round'
-            this._ctx.lineWidth = width;
-            this._ctx.strokeStyle = color; 
-            this._ctx.moveTo(fromX, fromY); 
-            this._ctx.lineTo(toX, toY); 
-            
-            this._ctx.stroke(); 
-            
-            this._ctx.closePath()
+        drawCircle(xyr, opts) {
+            const { x, y, r } = xyr;
+            const { color } = opts || { color: 'black' };
+    
+            this.#ctx.beginPath()
+            this.#ctx.arc(x, y, r, 0, Math.PI*2);
+            // this.#ctx.lineWidth = width;
+            // this.#ctx.fillStyle = color;
+            this.#ctx.strokeStyle = color; 
+            this.#ctx.stroke();
+            this.#ctx.closePath();
         }
 
-        clearRect() {
+        drawLine(fromX, fromY, toX, toY, width, color) {
+            this.#ctx.beginPath(); 
+            // this._ctx.lineCap = 'round'
+            this.#ctx.lineWidth = width;
+            this.#ctx.strokeStyle = color; 
+            this.#ctx.moveTo(fromX, fromY); 
+            this.#ctx.lineTo(toX, toY); 
+            
+            this.#ctx.stroke(); 
+            
+            this.#ctx.closePath()
+        }
+
+        clearRect = () => {
             this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
         }
     

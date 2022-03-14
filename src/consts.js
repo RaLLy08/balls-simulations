@@ -1,4 +1,4 @@
 /** @const {number} */
-const CANVAS_WIDTH = 1200;
+const CANVAS_WIDTH = 600;
 /** @const {number} */
 const CANVAS_HEIGHT = 700;
