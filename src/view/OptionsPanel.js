@@ -14,7 +14,7 @@ const OptionsPanel = function() {
 
             this.#grabbingCheckbox.onchange = (e) => {
                 this.grabbing = e.target.checked;
-                localStorage.setItem('grabbing', e.target.checked);
+                localStorage.setItem('grabbing', +e.target.checked);
             };
 
             this.#projectionsCheckbox = document.getElementById('projections-checkbox');
@@ -22,7 +22,7 @@ const OptionsPanel = function() {
 
             this.#projectionsCheckbox.onchange = (e) => {
                 this.projections = e.target.checked;
-                localStorage.setItem('projections', e.target.checked);
+                localStorage.setItem('projections', +e.target.checked);
             };
         }
 

@@ -101,10 +101,8 @@ const Game = (function () {
                 this.field.userEvents.tick, // change to the better way
                 this.forEachBalls,
             ]);
-            // this.field.setFieldBalls(this.balls.getBalls()); 
-            // this.frameRates.setFps(10)
-            this.init();
 
+            this.init();
         }
 
         init() {
@@ -154,8 +152,6 @@ const Game = (function () {
             const balls = this.balls.getBalls();
     
             for (const ball of balls) {
-                // ball.callPatterns();
-                // if (this.optionsPanel.grabbing) this.grabBall(ball, balls);
                 if (this.optionsPanel.grabbing && this.detectGrabbing(ball)) {
                     this.grabBall(ball, balls)
                 } else {
@@ -174,12 +170,6 @@ const Game = (function () {
                 this.field.drawBall(ball);
             };
         }
-
-        // moveBalls = () => {
-        //     const balls = this.balls.getBalls();
-
-        //     for (const ball of balls) ball.callPatterns();
-        // }
 
         moveBall = (ball) => {
             ball.x += ball.vx;
@@ -228,17 +218,18 @@ const Game = (function () {
             }
         }
 
-        grabBall = (ball, balls, grabbedCords) => { 
+        grabBall = (ball, balls) => { 
             const { x, y, vx, vy } = this.field.userEvents.getPressedSyncCords();
 
             ball.x = x;
             ball.y = y;
-
-            ball.y -= this.getWallIntersectionY1(ball) + this.getWallIntersectionY2(ball);
-            ball.x -= this.getWallIntersectionX2(ball) + this.getWallIntersectionX1(ball);
-
             ball.vx = vx;
             ball.vy = vy;
+
+            ball.x -= this.getWallIntersectionX2(ball) + this.getWallIntersectionX1(ball);
+            ball.y -= this.getWallIntersectionY1(ball) + this.getWallIntersectionY2(ball);
+
+     
             
             for (const otherBall of balls) {
                 if (ball.id === otherBall.id) continue;
@@ -386,164 +377,6 @@ const Game = (function () {
             }
         }
 
-        grabBall1 = (ball, balls) => {
-            const pressedCords = this.field.userEvents.getPressedSyncCords();
-            if (pressedCords) {
-                const { x, y, vx, vy } = pressedCords;
-
-                this.field.userEvents.onMouseUnpress = () => {
-                    this.field.setCursorGrabbing(false);
-                    this.balls.fixedBallId = null;
-                    this.balls.grabbedId = null;
-                };
-
-                const canBeGrabbed = this.balls.grabbedId === null || this.balls.grabbedId === ball.id;
-
-                if (!canBeGrabbed) return;
-
-                const intersected = this.detectCollision(ball, {
-                    x,
-                    y,
-                    r: 1
-                })
-
-                if (vx === 0 && vy === 0 && this.balls.grabbedId === ball.id) {
-                    this.balls.fixedBallId = ball.id;
-                } else if (this.balls.grabbedId === ball.id) {
-                    this.balls.fixedBallId = null;
-                }
-             
-                if (intersected) {
-                    this.balls.grabbedId = ball.id
-                }
-              
-                if (this.balls.grabbedId === ball.id) {
-                    this.field.setCursorGrabbing(true);
-                
-                    // ball.vx = vx;
-                    // ball.vy = vy;
-
-                    ball.x = x;
-                    ball.y = y;
-                    
-                    for (const otherBall of balls) {
-                        if (ball.id === otherBall.id) continue;
-
-                        if (this.detectIntersection(ball, otherBall)) {
-
-                            const { x: xCenter1, y: yCenter1, vx: vx1, vy: vy1, r: r1 } = ball;
-                            const { x: xCenter2, y: yCenter2, vx: vx2, vy: vy2, r: r2 } = otherBall;
-
-                            const oX  = Math.abs(xCenter1 - xCenter2);
-                            const oY  = Math.abs(yCenter1 - yCenter2);
-        
-                            const distance = Math.hypot(oX, oY);
-        
-                            const vxNorm = (oX / distance) || 0;
-                            const vyNorm = (oY / distance) || 0;
-                           
-                            const trueOx = (vxNorm) * (r1 + r2);
-                            const trueOy = (vyNorm) * (r1 + r2);
-
-                            let oXSign = 0;
-                            let oYSign = 0;
-        
-                            if (ball.x > otherBall.x) oXSign = 1;
-                            if (ball.y < otherBall.y) oYSign = -1;
-                            if (ball.x < otherBall.x) oXSign = -1;
-                            if (ball.y > otherBall.y) oYSign = 1;
-        
-        
-                            let returnX = 0;
-                            let returnY = 0;
-
-                            if ((oXSign === 0 && oYSign === 0 )) {
-                                // move to prev cords because of undefined direction 
-                                returnX = ball.x + r2*2*this.balls.prevGrabbingXSign;
-                                returnY = ball.y + r2*2*this.balls.prevGrabbingYSign;
-                            } else {
-                                returnX = ball.x + trueOx*oXSign + oX*(-oXSign);
-                                returnY = ball.y + trueOy*oYSign + oY*(-oYSign);
-        
-                                this.balls.prevGrabbingXSign = oXSign;
-                                this.balls.prevGrabbingYSign = oYSign;
-                            }
-
-                            ball.x = returnX;
-                            ball.y = returnY
-
-                            if (this.checkWallX2({ x: returnX, r: r1})) {
-                                ball.x +=  this.field.width - (ball.x + ball.r);
-                            }
-        
-                            if (this.checkWallX1({ x: returnX, r: r1})) {
-                                ball.x -=  (ball.x - ball.r);
-                            }
-        
-                            if (this.checkWallY2({ y: returnY, r: r1})) {
-                                ball.y +=  this.field.height - (ball.y + ball.r);
-                            }
-        
-                            if (this.checkWallY1({ y: returnY, r: r1})) {
-                                ball.y -=  (ball.y - ball.r);
-                            }
-
-                           
-
-
-                            
-                            // detect 3th collision for otherBall
-                            // for (const currentBall of this.balls.getBalls()) {
-                            //     if (currentBall.id === ball.id || currentBall.id === otherBall.id) continue;
-
-                            //     if (this.detectIntersection(ball, currentBall)) { 
-                            //         const { x: xCenter1, y: yCenter1, vx: vx1, vy: vy1, r: r1 } = ball;
-                            //         const { x: xCenter2, y: yCenter2, vx: vx2, vy: vy2, r: r2 } = currentBall;
-                            //         const oX  = Math.abs(xCenter1 - xCenter2);
-                            //         const oY  = Math.abs(yCenter1 - yCenter2);
-            
-                            //         const distance = Math.hypot(oX, oY);
-                            //         console.log(currentBall.id, distance - r1 - r2 <= 0);
-                            //         const vxNorm = (oX / distance) || 0;
-                            //         const vyNorm = (oY / distance) || 0;
-                               
-                            //         const trueOx = (vxNorm) * (r1 + r2);
-                            //         const trueOy = (vyNorm) * (r1 + r2);
-                            //         // console.log(trueOx);
-                            //         let oXSign = 0;
-                            //         let oYSign = 0;
-            
-                            //         if (currentBall.x > ball.x) oXSign = 1;
-                            //         if (currentBall.y < ball.y) oYSign = -1;
-                            //         if (currentBall.x < ball.x) oXSign = -1;
-                            //         if (currentBall.y > ball.y) oYSign = 1;
-            
-    
-                            //         ball.x = ball.x + trueOx*oXSign + oX*(-oXSign);
-                            //         ball.y = ball.y + trueOy*oYSign + oY*(-oYSign);
-                            //         continue;
-                            //     }
-
-                            // }
-
-        
-                            // if (!this.checkWallX2({ x: returnX, r: r1})) {
-                            //     ball.x = returnX;
-                            //     console.log(ball.x);
-                            // } else {
-                            //     ball.x = ball.x - ball.r*2
-                            // }
-              
-                            return;
-                        }
-                    }
-                    
-                    
-                    return
-                };
-      
-            } 
-        }
 
         checkWallX1 = ({x, r}) => x <= r;
         checkWallX2 = ({x, r}) => x + r >= this.field.width;
@@ -698,9 +531,6 @@ const Game = (function () {
         detectCollision = (current, other) => Math.pow(current.x - other.x, 2) + Math.pow(current.y - other.y, 2) <= Math.pow(current.r + other.r, 2);
         
         detectIntersection = (current, other) => Math.pow(current.x - other.x + other.vx - current.vx, 2) + Math.pow(current.y - other.y + other.vy - current.vy , 2) < Math.pow(current.r + other.r, 2);
-
-        //detectIntersection = (current, other) => Math.pow(current.x - other.x, 2) + Math.pow(current.y - other.y, 2) <= Math.pow(current.r + other.r - Math.hypot(other.vx, other.vy) - Math.hypot(current.vx, current.vy), 2);
-    
 
         displayFrames = () => {
             const fps = this.frameRates.getFPS();
