@@ -5,7 +5,8 @@ const Field = (function() {
                 width: CANVAS_WIDTH,
                 height: CANVAS_HEIGHT,
             });
-            
+
+            // this.ballOptions = new Map();
         }
 
         drawBall = (ball) => {
@@ -26,7 +27,6 @@ const Field = (function() {
             */
 
         }
-
 
         /**
          *  Direction of move line
@@ -78,6 +78,7 @@ const Field = (function() {
         drawPositionValues = (ball) => {
 
         }
+
     }
 })()
 

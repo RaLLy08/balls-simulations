@@ -11,6 +11,7 @@
     <script type="text/javascript" src="./src/view/Canvas.js"></script>
     <script type="text/javascript" src="./src/view/Field.js"></script>
     <script type="text/javascript" src="./src/view/FPSDisplay.js"></script>
+    <script type="text/javascript" src="./src/view/OptionsPanel.js"></script>
     <script type="text/javascript" src="./src/view/utils.js"></script>
     <script type="text/javascript" src="./src/Game.js"></script>
     <!-- <script type="text/javascript" src="./src/DeviceControl.js"></script> -->
@@ -22,6 +23,18 @@
             <div class="wrapper__fps">
                 <span id="fps"></span>
                 FPS
+            </div>
+            <div class="wrapper__options-panel" id="options-panel">
+                <span> Enable grabbing: </span>
+                <label class="switch">
+                    <input type="checkbox" id="grabbing-checkbox">
+                    <span class="slider"></span>
+                </label>
+                <span> Enable projections: </span>
+                <label class="switch">
+                    <input type="checkbox" id="projections-checkbox">
+                    <span class="slider"></span>
+                </label>
             </div>
             <canvas width="0" height="0" id="canvas"></canvas>
         </div>

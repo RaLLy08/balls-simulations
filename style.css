@@ -24,3 +24,76 @@ canvas {
     border: 1px dashed black;
     resize: both;
 }
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+:root {
+    --slider-width: 16px;
+    --slider-height: 16px;
+    --switch-width: 40px;
+    --switch-height: 20px;
+    --switch-margin-x: 1px;
+    --switch-margin-top: 2px;
+}
+
+.slider {
+    border-radius: 14px;
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+}
+
+input:checked + .slider::after {
+    content: 'on';
+    font-size: 12px;
+    position: absolute;
+    left: 8px;
+    top: 2px;
+}
+
+input + .slider::after {
+    content: 'off';
+    font-size: 12px;
+    position: absolute;
+    right: 8px;
+    top: 3px;
+}
+
+.switch {
+    border-radius: 14px;
+    border: 1px solid black;
+    position: relative;
+    display: inline-block;
+    width: var(--switch-width);
+    height: var(--switch-height);
+}
+
+.slider::before {
+    transition: .2s;
+    content: '';
+    width:  var(--slider-width);
+    height: var(--slider-height);
+    top: var(--switch-margin-top);
+    left: var(--switch-margin-x);
+    background-color:gray;
+    border-radius: 50%;
+    position: absolute;
+}
+
+input:checked + .slider::before {
+    transform: translateX(calc( var(--switch-width) - var(--slider-width) - var(--switch-margin-x)* 2) );
+    background-color: #30db05;
+    box-shadow: rgba(145, 226, 14, 0.74) 0px 0px 10px;
+}
+
+.checkbox {
+    height: 10px;
+    width: 10px;
+}
