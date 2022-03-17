@@ -91,14 +91,15 @@ const Game = (function () {
             // view
             this.field = new Field();
             this.fpsDisplay = new FPSDisplay();
-            this.optionsPanel = new OptionsPanel()
+            this.optionsPanel = new OptionsPanel();
+            this.userEvents = new UserEvents(this.field.getCanvasElement());
             //
             this.balls = new Balls();
             
             this.frameRates = new FrameRates([
                 this.displayFrames,
                 this.field.clearRect,
-                this.field.userEvents.tick, // change to the better way
+                this.userEvents.tick,
                 this.forEachBalls,
             ]);
 
@@ -176,13 +177,13 @@ const Game = (function () {
         }
 
         detectGrabbing = (ball) => {
-            const isMousePressed = this.field.userEvents.isMousePressed;
+            const isMousePressed = this.userEvents.isMousePressed;
 
             if (isMousePressed) {
-                const { x, y, vx, vy } = this.field.userEvents.getPressedSyncCords();
+                const { x, y, vx, vy } = this.userEvents.getPressedSyncCords();
 
 
-                this.field.userEvents.onMouseUnpress = () => {
+                this.userEvents.onMouseUnpress = () => {
                     this.field.setCursorGrabbing(false);
                     
                     this.balls.fixedBallId = null;
@@ -218,7 +219,7 @@ const Game = (function () {
         }
 
         grabBall = (ball, balls) => { 
-            const { x, y, vx, vy } = this.field.userEvents.getPressedSyncCords();
+            const { x, y, vx, vy } = this.userEvents.getPressedSyncCords();
 
             ball.x = x;
             ball.y = y;
@@ -266,9 +267,6 @@ const Game = (function () {
                         returnX = ball.x + r2*2*this.balls.prevGrabbingXSign;
                         returnY = ball.y + r2*2*this.balls.prevGrabbingYSign;
                     } else {
-                  
-
-                        
                         returnX = ball.x + trueOx*oXSign + oX*(-oXSign);
                         returnY = ball.y + trueOy*oYSign + oY*(-oYSign);
                         // console.log(ball.y);
