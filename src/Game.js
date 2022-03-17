@@ -110,9 +110,9 @@ const Game = (function () {
                 height: 10,
                 width: 10,
                 r: 80,
-                x: 120,
-                y: 100,
-                vx: 0,
+                x: 320,
+                y: 520,
+                vx: 9,
                 vy: 0,
                 id: 0,
                 mass: 1,
@@ -122,23 +122,23 @@ const Game = (function () {
                 height: 10,
                 width: 10,
                 r: 80,
-                x: 180,
-                y: 510,
+                x: 720,
+                y: 520,
                 vx: 0,
                 vy: 0,
                 id: 1,
-                mass: 100,
+                mass: 1,
             });
             const ball3 = new Ball({
                 height: 10,
                 width: 10,
-                r: 100,
-                x: 430,
-                y: 510,
+                r: 60,
+                x: 500,
+                y: 140,
                 vx: 0,
                 vy: 0,
                 id: 2,
-                mass: 1,
+                mass: 100,
             });
 
             this.balls.addBall(ball);
@@ -161,10 +161,9 @@ const Game = (function () {
                 }
 
                 if (this.optionsPanel.projections) {
-                    this.field.drawAxises(ball)
-                    this.field.drawSpeedProjection(ball, {
-                        length: 'radious'
-                    })
+                    this.field.drawAxises(ball);
+                    this.field.drawSpeedProjection(ball);
+                    this.field.drawBallsDistances(balls);
                 }
               
                 this.field.drawBall(ball);

@@ -122,11 +122,11 @@ const Canvas = (function(){
             const { x, y, r } = xyr;
             const { color } = opts || { color: 'black' };
     
-            this.#ctx.beginPath()
+            this.#ctx.beginPath();
             this.#ctx.arc(x, y, r, 0, Math.PI*2);
-            // this.#ctx.lineWidth = width;
-            // this.#ctx.fillStyle = color;
+            this.#ctx.lineWidth = 1;
             this.#ctx.strokeStyle = color; 
+
             this.#ctx.stroke();
             this.#ctx.closePath();
         }
@@ -141,8 +141,20 @@ const Canvas = (function(){
             
             this.#ctx.stroke(); 
             
-            this.#ctx.closePath()
+            this.#ctx.closePath();
         }
+
+
+        writeText(x, y, text, opts = {}) {
+            const size = opts.size || 12;
+
+            this.#ctx.font = `${size}px monospace`;
+            this.#ctx.textAlign = opts.textAlign;
+            this.#ctx.fillStyle = opts.color;
+            this.#ctx.fillText(text, x, y);
+        } 
+
+
 
         clearRect = () => {
             this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
