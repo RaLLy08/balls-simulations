@@ -12,8 +12,3 @@ function throttle(func, wait) {
       }
     };
 }
-
-function truncTo(value, point) {
-  const k = 10**point;
-  return Math.trunc(value * k) / k
-}

@@ -43,8 +43,8 @@ const Field = (function() {
 
             const { x, y, r, vx, vy } = ball;
 
-            this.writeText(x + VY_TEXT_MARGIN_LEFT, y - r - VY_TEXT_MARGIN_BOTTOM, 'vy:' + truncTo(vy, 3));
-            this.writeText(x + r + VX_TEXT_MARGIN_LEFT, y - VX_TEXT_MARGIN_TOP, 'vx:' + truncTo(vx, 3));
+            this.writeText(x + VY_TEXT_MARGIN_LEFT, y - r - VY_TEXT_MARGIN_BOTTOM, 'vy:' + vy.toPrecision(2));
+            this.writeText(x + r + VX_TEXT_MARGIN_LEFT, y - VX_TEXT_MARGIN_TOP, 'vx:' + vx.toPrecision(2));
 
             this.drawLine(
                 x, y, 
