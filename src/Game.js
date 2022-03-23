@@ -157,9 +157,10 @@ const Game = (function () {
                     this.grabBall(ball, balls)
                 } else {
                     this.moveBall(ball);
-                    this.reboundBalls(ball, balls)
                     this.reboundWalls(ball)
                 }
+
+                this.reboundBalls(ball, balls);
 
                 if (this.optionsPanel.projections) {
                     this.field.drawAxises(ball);
