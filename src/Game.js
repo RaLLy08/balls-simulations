@@ -234,63 +234,11 @@ const Game = (function () {
 
      
             
-            for (const otherBall of balls) {
-                if (ball.id === otherBall.id) continue;
+            // for (const otherBall of balls) {
+            //     if (ball.id === otherBall.id) continue;
 
-                if (this.detectIntersection(ball, otherBall)) {
-                    const { x: xCenter1, y: yCenter1, vx: vx1, vy: vy1, r: r1 } = ball;
-                    const { x: xCenter2, y: yCenter2, vx: vx2, vy: vy2, r: r2 } = otherBall;
-                    // the sum of grabbed ball vx and applied ball vx used to prevent space between balls while rebouding
-                    const oX  = Math.abs(xCenter1 - xCenter2 - (vx1 + vx2));
-                    const oY  = Math.abs(yCenter1 - yCenter2 - (vy1 + vy2));
+            //     if (this.detectIntersection(ball, otherBall)) {
 
-                    const distance = Math.hypot(oX, oY);
-
-                    const vxNorm = (oX / distance) || 0;
-                    const vyNorm = (oY / distance) || 0;
-                   
-                    const trueOx = (vxNorm) * (r1 + r2);
-                    const trueOy = (vyNorm) * (r1 + r2);
-
-                    let oXSign = 0;
-                    let oYSign = 0;
-
-                    if (ball.x > otherBall.x) oXSign = 1;
-                    if (ball.y < otherBall.y) oYSign = -1;
-                    if (ball.x < otherBall.x) oXSign = -1;
-                    if (ball.y > otherBall.y) oYSign = 1;
-
-                    let returnX = 0;
-                    let returnY = 0;
-
-                    if ((oXSign === 0 && oYSign === 0 )) {
-                        // move to prev cords because of undefined direction 
-                        returnX = ball.x + r2*2*this.balls.prevGrabbingXSign;
-                        returnY = ball.y + r2*2*this.balls.prevGrabbingYSign;
-                    } else {
-                        returnX = ball.x + trueOx*oXSign + oX*(-oXSign) - vx2;
-                        returnY = ball.y + trueOy*oYSign + oY*(-oYSign) - vy2;
-                        // console.log(ball.y);
-                       
-                        const vyNorm2 = Math.acos(((oY - this.getWallIntersectionY2(ball)) / (r1 + r2)));
-
-                        const trueOx2 = Math.sin(vyNorm2 ) * (r1 + r2);
-
-
-                        //console.log(this.field.height - yCenter2, oY - this.getWallIntersectionY2(ball));
-                        // returnY -= this.getWallIntersectionY2({y: returnY, r: r1})
-
-                        this.balls.prevGrabbingXSign = oXSign;
-                        this.balls.prevGrabbingYSign = oYSign;
-                    }
-
-
-
-                    ball.x = returnX;
-                    ball.y = returnY
-
-
-                        
                         // console.log(ball.y);
                        
                         // const vyNorm2 = Math.acos(((oY - this.getWallIntersectionY2(ball)) / (r1 + r2)));
@@ -322,26 +270,10 @@ const Game = (function () {
                     //     ball.x -= (trueOx2 - oX)
                     // }
 
-                    if (this.checkWallX2(ball)) {
-                        ball.x +=  this.field.width - (ball.x + ball.r);
-                    }
+                // }
 
-                    if (this.checkWallX1(ball)) {
-                        ball.x -=  (ball.x - ball.r);
-                    }
-
-                    if (this.checkWallY2(ball)) {
-                        ball.y +=  this.field.height - (ball.y + ball.r);
-                    }
-
-                    if (this.checkWallY1(ball)) {
-                        ball.y -=  (ball.y - ball.r);
-                    }
-                }
-
-            }
+            // }
         }
-
 
         checkWallX1 = ({x, r}) => x <= r;
         checkWallX2 = ({x, r}) => x + r >= this.field.width;
