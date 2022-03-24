@@ -145,7 +145,7 @@ const Game = (function () {
             this.balls.addBall(ball);
             this.balls.addBall(ball2);
             this.balls.addBall(ball3);
-            // this.frameRates.setFps(10)
+            
             this.frameRates.start();
         }
         
@@ -221,7 +221,7 @@ const Game = (function () {
             }
         }
 
-        grabBall = (ball, balls) => { 
+        grabBall = (ball) => { 
             const { x, y, vx, vy } = this.userEvents.getPressedSyncCords();
 
             ball.x = x;
@@ -229,50 +229,8 @@ const Game = (function () {
             ball.vx = vx;
             ball.vy = vy;
 
-            ball.x -= this.getWallIntersectionX2(ball) + this.getWallIntersectionX1(ball);
-            ball.y -= this.getWallIntersectionY1(ball) + this.getWallIntersectionY2(ball);
-
-     
-            
-            // for (const otherBall of balls) {
-            //     if (ball.id === otherBall.id) continue;
-
-            //     if (this.detectIntersection(ball, otherBall)) {
-
-                        // console.log(ball.y);
-                       
-                        // const vyNorm2 = Math.acos(((oY - this.getWallIntersectionY2(ball)) / (r1 + r2)));
-
-                        // const trueOx2 = Math.sin(vyNorm2 ) * (r1 + r2);
-
-
-                        //console.log(this.field.height - yCenter2, oY - this.getWallIntersectionY2(ball));
-                        // returnY -= this.getWallIntersectionY2({y: returnY, r: r1})
-
-
-
-
-                    // if (this.checkWallY2(ball)) {
-
-                    //     const vyNorm2 = Math.acos((oY / (r1 + r2)));
-
-                    //     const trueOx2 = Math.sin(vyNorm2) * (r1 + r2);
-
-                    //     // console.log(trueOx2);
-
-                    //     // ball.x -= trueOx*oXSign + oX*(-oXSign)
-                    //     // ball.y -= trueOy*oYSign + oY*(-oYSign);
-                    // }
-
-                    // if (this.checkWallY2(ball)) {
-                    //     const vyNorm2 = Math.acos((oY / (r1 + r2)));
-                    //     const trueOx2 = Math.sin(vyNorm2) * (r1 + r2);
-                    //     ball.x -= (trueOx2 - oX)
-                    // }
-
-                // }
-
-            // }
+            ball.x -= this.getWallIntersectionX2(ball) - this.getWallIntersectionX1(ball);
+            ball.y -= this.getWallIntersectionY2(ball) - this.getWallIntersectionY1(ball);
         }
 
         checkWallX1 = ({x, r}) => x <= r;
@@ -281,9 +239,9 @@ const Game = (function () {
         checkWallY2 = ({y, r}) => y + r >= this.field.height;
 
 
-        getWallIntersectionX1 = ({x, r}) => +this.checkWallX1({x, r}) && x - r;
+        getWallIntersectionX1 = ({x, r}) => +this.checkWallX1({x, r}) && Math.abs(x - r);
         getWallIntersectionX2 = ({x, r}) => +this.checkWallX2({x, r}) && x + r - this.field.width;
-        getWallIntersectionY1 = ({y, r}) => +this.checkWallY1({y, r}) && y - r;
+        getWallIntersectionY1 = ({y, r}) => +this.checkWallY1({y, r}) && Math.abs(y - r);
         getWallIntersectionY2 = ({y, r}) => +this.checkWallY2({y, r}) && Math.abs(this.field.height - y - r);
         
         reboundWalls = (ball) => {
@@ -337,8 +295,35 @@ const Game = (function () {
                     if (currentBall.x < otherBall.x) oXSign = -1;
                     if (currentBall.y > otherBall.y) oYSign = 1;
 
-                    currentBall.x = currentBall.x + trueOx*oXSign + oX*(-oXSign);
-                    currentBall.y = currentBall.y + trueOy*oYSign + oY*(-oYSign);
+                    let rx = 0
+                    let ry = 0
+
+                    rx = currentBall.x + trueOx*oXSign + oX*(-oXSign);
+                    ry = currentBall.y + trueOy*oYSign + oY*(-oYSign);
+
+                    const wallOffsetX = this.getWallIntersectionX1({x: rx, r: currentBall.r}) - this.getWallIntersectionX2({x: rx, r: currentBall.r});
+                    const wallOffsetY = this.getWallIntersectionY1({y: ry, r: currentBall.r}) + this.getWallIntersectionY2({y: ry, r: currentBall.r});
+                    
+                    if (wallOffsetX && currentBall.id === this.balls.grabbedId) {
+                        const oxCentersAngle = Math.acos(oX/(r1+r2));
+                        const trueY1Y2 = Math.sin(oxCentersAngle) * (r1+r2);
+                        const offsetY = trueY1Y2 - trueOy;
+
+                        rx += wallOffsetX;
+                        ry += offsetY * oYSign;
+                    }
+
+                    if (wallOffsetY && currentBall.id === this.balls.grabbedId) {
+                        const oyCentersAngle = Math.acos(oY/(r1+r2));
+                        const trueX1X2 = Math.sin(oyCentersAngle) * (r1+r2);
+                        const offsetX = trueX1X2 - trueOx;
+
+                        rx += offsetX * oXSign;
+                        ry += wallOffsetY * (-oYSign);
+                    }
+
+                    currentBall.x = rx;
+                    currentBall.y = ry;
                 }
 
                 const collided = this.detectCollision(otherBall, currentBall);
