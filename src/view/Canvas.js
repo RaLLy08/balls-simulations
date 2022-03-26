@@ -30,7 +30,7 @@ const Canvas = (function(){
             const { color } = opts || { color: 'black' };
     
             this.#ctx.beginPath()
-            this.#ctx.arc(x, y, r*2, 0, Math.PI*2);
+            this.#ctx.arc(x, y, r, 0, Math.PI*2);
             // this.#ctx.lineWidth = width;
             this.#ctx.fillStyle = color;
             this.#ctx.fill();
@@ -101,8 +101,8 @@ const Canvas = (function(){
          * 
          * @param {state: boolean} 
          */
-        setCursorGrabbing = (state) => {
-            this.#canvas.style.cursor = state ? "grabbing" : 'auto';
+        setCursor = (cursor) => {
+            this.#canvas.style.cursor = cursor;
         }
     }
 })();

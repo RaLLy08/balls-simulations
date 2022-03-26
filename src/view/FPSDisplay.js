@@ -32,4 +32,4 @@ const FPSDisplay = function() {
     }
 
     return FPSDisplay;
-}()
+}();

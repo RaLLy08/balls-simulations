@@ -1,97 +1,11 @@
 const Game = (function () {
-    class FrameRates {
-        #prevFrame;
-        #currentFrame;
-        #callFns = [];
-        /**
-         * frame delay, default browser requestAnimationFrame ~ 60 fps (depending on your OS settings)
-         */
-        #frameDelay = 'browser';
-        /**
-         * callFns - which will be called every frame
-         */
-        constructor(callFns) {
-            this.#callFns = callFns;
-            this.isStarted = false;
-        }
-
-        #callFrame = () => {
-            if (!this.isStarted) return;
-            
-            this.#timeBetweenCalls();
-            for (const fn of this.#callFns) fn();
-
-            if (this.#frameDelay === 'browser') return window.requestAnimationFrame(this.#callFrame);
-
-            setTimeout(this.#callFrame, this.#frameDelay);
-        }
-
-        #timeBetweenCalls = () => {
-            const newFrame = performance.now();
-            this.#currentFrame = newFrame - this.#prevFrame;
-    
-            this.#prevFrame = newFrame;
-        }
-
-
-        setFps = (fps) => {
-            this.#frameDelay = 1000 / fps;
-        }
-
-        /**
-         * default browser requestAnimationFrame ~ 60 fps
-         */
-        setFpsByDefault = () => {
-            this.#frameDelay = 'browser'
-        }
-        
-        /**
-         * start frame calling
-         */
-        start = () => {
-            this.isStarted = true
-            this.#callFrame();
-        }
-        /**
-         * stop frame calling
-         */
-        stop = () => {
-            this.isStarted = false;
-        }
-        /**
-         * get fps
-         */
-        getFPS = () => {
-            if (!this.#currentFrame) return  Number.MAX_SAFE_INTEGER;
-
-            return 1000 / this.#currentFrame;
-        }
-    }
-    
-    class Balls {
-        #balls = [];
-        grabbedId = null;
-        prevGrabbingXSign = null;
-        prevGrabbingYSign = null;
-        /**
-         * @param {Ball} ball 
-         */
-        addBall = (ball) => {
-            this.#balls.push(ball);
-        }
-        /**
-         * 
-         * @returns {[Ball]}
-         */
-        getBalls = () => this.#balls;
-    }
-
     class Game {
         constructor() {
             // view
             this.field = new Field();
             this.fpsDisplay = new FPSDisplay();
             this.optionsPanel = new OptionsPanel();
+            this.editModePanel = new EditModePanel(this.optionsPanel.editMode);
             this.userEvents = new UserEvents(this.field.getCanvasElement());
             //
             this.balls = new Balls();
@@ -100,14 +14,16 @@ const Game = (function () {
                 this.displayFrames,
                 this.field.clearRect,
                 this.userEvents.tick,
+                this.viewElements,
                 this.forEachBalls,
             ]);
+            this.userEvents.onMouseClick = this.onFieldClick;
 
             this.init();
         }
 
         init() {
-            const ball = new Ball({
+            const ball = {
                 height: 10,
                 width: 10,
                 r: 80,
@@ -115,11 +31,10 @@ const Game = (function () {
                 y: 290,
                 vx: 0,
                 vy: 0,
-                id: 0,
                 mass: 1,
-            });
+            };
 
-            const ball2 = new Ball({
+            const ball2 = {
                 height: 10,
                 width: 10,
                 r: 80,
@@ -127,10 +42,9 @@ const Game = (function () {
                 y: 420,
                 vx: 0,
                 vy: 0,
-                id: 1,
                 mass: 1,
-            });
-            const ball3 = new Ball({
+            };
+            const ball3 = {
                 height: 10,
                 width: 10,
                 r: 60,
@@ -138,17 +52,39 @@ const Game = (function () {
                 y: 340,
                 vx: -2,
                 vy: 0,
-                id: 2,
                 mass: 100,
-            });
+            };
 
             this.balls.addBall(ball);
-            this.balls.addBall(ball2);
+            // this.balls.addBall(ball2);
             this.balls.addBall(ball3);
             
             this.frameRates.start();
         }
-        
+           
+        onFieldClick = ({x,  y}) => {
+            if (this.optionsPanel.editMode) {
+                const { mass, radious, vx, vy, isRandom } = this.editModePanel;
+
+                if (isRandom) return void this.balls.addRandomBall(x, y);
+
+                for (const ball of this.balls.getBalls()) if (this.detectIntersection({x, y, r: radious}, ball)) return;
+
+                this.balls.addBall({
+                    x, y, mass, r: radious, vx, vy
+                })
+
+                return
+            }
+            this.field.setCursor('auto');
+        }
+
+        viewElements = () => {
+            this.editModePanel.setVisibility(this.optionsPanel.editMode);
+          
+            if (this.optionsPanel.editMode) this.field.setCursor('cell');
+        }
+
         forEachBalls = () => {
             const balls = this.balls.getBalls();
     
@@ -183,9 +119,8 @@ const Game = (function () {
             if (isMousePressed) {
                 const { x, y, vx, vy } = this.userEvents.getPressedSyncCords();
 
-
                 this.userEvents.onMouseUnpress = () => {
-                    this.field.setCursorGrabbing(false);
+                    this.field.setCursor('auto');
                     
                     this.balls.fixedBallId = null;
                     this.balls.grabbedId = null;
@@ -210,11 +145,11 @@ const Game = (function () {
                 }
                 
                 if (intersected) {
-                    this.balls.grabbedId = ball.id
+                    this.balls.grabbedId = ball.id;
                 }
 
                 if (this.balls.grabbedId === ball.id) {
-                    this.field.setCursorGrabbing(true);
+                    this.field.setCursor('grabbing');
                
                     return true
                 };
@@ -223,7 +158,7 @@ const Game = (function () {
 
         grabBall = (ball) => { 
             const { x, y, vx, vy } = this.userEvents.getPressedSyncCords();
-
+            
             ball.x = x;
             ball.y = y;
             ball.vx = vx;
@@ -284,9 +219,12 @@ const Game = (function () {
                     const vxNorm = (oX / distance) || 0;
                     const vyNorm = (oY / distance) || 0;
                    
-                    const trueOx = (vxNorm) * (r1 + r2);
-                    const trueOy = (vyNorm) * (r1 + r2);
-   
+                    let trueOx = (vxNorm) * (r1 + r2);
+                    let trueOy = (vyNorm) * (r1 + r2);
+
+                    // trueOx = trueOx - Math.abs(trueOx - oX) - vx1;
+                    // trueOy = trueOy - Math.abs(trueOy - oY) - vy1;
+
                     let oXSign = 0;
                     let oYSign = 0;
 
@@ -380,4 +318,4 @@ const Game = (function () {
     }
 
     return Game;
-})()
+})();

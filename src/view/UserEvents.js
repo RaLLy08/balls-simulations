@@ -2,17 +2,18 @@ const UserEvents = (function () {
 
     return class UserEvents {
         isMousePressed = false;
+        isClicked = false;
         /* 
         ** warn: sets null after execute
         */
         onMouseUnpress = null;
-        #pressedMouse = {
+        onMouseClick = null;
+        #mousePosition = {
             x: undefined,
             y: undefined,
             vy: undefined,
             vx: undefined,
         };
-
         syncPressedMouse = {
             x: undefined,
             y: undefined,
@@ -23,13 +24,10 @@ const UserEvents = (function () {
         constructor(element) {
             element.onmousedown = (e) => {
                 this.isMousePressed = true;
-                this.#pressedMouse.x = e.offsetX;
-                this.#pressedMouse.y = e.offsetY;
-                this.syncPressedMouse.x = e.offsetX;
-                this.syncPressedMouse.y = e.offsetY;
             };
             element.onmouseup  = () => {
                 if (this.isMousePressed) {
+                    this.isClicked = true;
                     this.#unpress();
                 }
             };
@@ -39,32 +37,29 @@ const UserEvents = (function () {
                 }
             };
             element.onmousemove = (e) => {
-                if (this.isMousePressed) {
-                    // this.#pressedMouse.vx = e.offsetX - this.#pressedMouse.x;
-                    // this.#pressedMouse.vy = e.offsetY - this.#pressedMouse.y;
-                    this.#pressedMouse.x = e.offsetX;
-                    this.#pressedMouse.y = e.offsetY;
-                } 
+                this.#mousePosition.x = e.offsetX;
+                this.#mousePosition.y = e.offsetY;
             }
         }
 
         tick = () => {
-            this.syncPressedMouse.vx = this.#pressedMouse.x - this.syncPressedMouse.x;
-            this.syncPressedMouse.vy = this.#pressedMouse.y -  this.syncPressedMouse.y;
+            this.syncPressedMouse.vx = this.#mousePosition.x - this.syncPressedMouse.x;
+            this.syncPressedMouse.vy = this.#mousePosition.y -  this.syncPressedMouse.y;
 
-            this.syncPressedMouse.x = this.#pressedMouse.x;
-            this.syncPressedMouse.y = this.#pressedMouse.y;
-        }
+            this.syncPressedMouse.x = this.#mousePosition.x;
+            this.syncPressedMouse.y = this.#mousePosition.y;
 
-        onPressedMove = () => {
- 
+            if (this.isClicked && this.onMouseClick) {
+                this.onMouseClick({
+                    x: this.#mousePosition.x,
+                    y: this.#mousePosition.y,
+                });
+                this.isClicked = false;
+            }
         }
 
         #unpress = () => {
             this.isMousePressed = false;
-
-            this.#pressedMouse.x = undefined;
-            this.#pressedMouse.y = undefined;
 
             if (this.onMouseUnpress) {
                 this.onMouseUnpress();
@@ -77,4 +72,4 @@ const UserEvents = (function () {
             return null;
         };
     }
-})()
+})();

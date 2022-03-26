@@ -1,32 +1,59 @@
 const OptionsPanel = function() { 
     class OptionsPanel {
-        #grabbingCheckbox = null;
-        #projectionsCheckbox = null;
+        #root = document.getElementById('options-panel');
 
         constructor() {
-            this.grabbing = +localStorage.getItem('grabbing') || false;
-            this.friction = +localStorage.getItem('friction') || 0;
-            this.gravitation = +localStorage.getItem('gravitation') || false;
-            this.projections = +localStorage.getItem('projections') || false;
+            this.grabbing = +localStorage.getItem('grabbing');
+            this.friction = +localStorage.getItem('friction');
+            this.gravitation = +localStorage.getItem('gravitation');
+            this.projections = +localStorage.getItem('projections');
+            this.editMode = +localStorage.getItem('editMode');
 
-            this.#grabbingCheckbox = document.getElementById('grabbing-checkbox');
-            this.#grabbingCheckbox.checked = this.grabbing;
+            this.onCheckboxChange(
+                this.setOptionCheckbox('Enable grabbing:', this.grabbing), 
+                checked => {
+                    this.grabbing = checked;
+                    localStorage.setItem('grabbing', checked);
+                }
+            );
 
-            this.#grabbingCheckbox.onchange = (e) => {
-                this.grabbing = e.target.checked;
-                localStorage.setItem('grabbing', +e.target.checked);
-            };
+            this.onCheckboxChange(this.setOptionCheckbox('Enable projections:', this.projections), checked => {
+                this.projections = checked;
+                localStorage.setItem('projections', checked);
+            });
 
-            this.#projectionsCheckbox = document.getElementById('projections-checkbox');
-            this.#projectionsCheckbox.checked = this.projections;
-
-            this.#projectionsCheckbox.onchange = (e) => {
-                this.projections = e.target.checked;
-                localStorage.setItem('projections', +e.target.checked);
-            };
+            this.onCheckboxChange(this.setOptionCheckbox('Edit mode:', this.editMode), checked => {
+                this.editMode = checked;
+                localStorage.setItem('editMode', checked);
+            });
         }
 
+        setOptionCheckbox = (title, checked = false) => {
+            const span = document.createElement('span');
+            span.innerText = title;
+
+            const label = document.createElement('label');
+
+            label.className = 'switch';
+            label.innerHTML = `
+                <input type="checkbox" ${checked ? 'checked' : ''} >
+                <span class="slider"></span>
+            `
+
+            const box = document.createElement('div');
+
+            box.appendChild(span);
+            box.appendChild(label);
+
+            this.#root.appendChild(box)
+
+            return box;
+        }
+
+        onCheckboxChange = (el, listener) => {
+            el.onchange = (e) => void listener(+e.target.checked);
+        }
     }
 
     return OptionsPanel;
-}()
+}();

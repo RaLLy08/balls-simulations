@@ -6,26 +6,25 @@ const Field = (function() {
                 height: CANVAS_HEIGHT,
             });
 
-            // this.ballOptions = new Map();
         }
 
         drawBall = (ball) => {
-            const { x, y, r, vx, vy } = ball;
+            const { x, y, r, vx, vy, color } = ball;
+            if (color === 'transparent') {
+                this.drawCircle({
+                    x,
+                    y,
+                    r,
+                });
 
-            this.drawCircle({
+                return;
+            }
+            
+            this.drawPoint({
                 x,
                 y,
                 r,
-            })
-
-            const toDeqree = (radians) => radians * (180 / Math.PI);
-            const toRad = (deqree) => deqree * (Math.PI / 180);
-
-
-            /*
-            ** oX, oY projections of the ball
-            */
-
+            }, { color });
         }
 
         /**
@@ -64,7 +63,7 @@ const Field = (function() {
 
                 for (let j = i + 1; j < balls.length; j++) {
                     const { x: x2, y: y2 } = balls[j];
-                    
+
                     const distanceC1C2 = Math.hypot(x2 - x1, y2 - y1);
                     const distanceX1X2 = x2 - x1;
                     const distanceY1Y2 = y2 - y1;
@@ -97,4 +96,4 @@ const Field = (function() {
         }
 
     }
-})()
+})();

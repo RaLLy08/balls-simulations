@@ -11,4 +11,4 @@ function throttle(func, wait) {
         }, wait);
       }
     };
-}
+};
