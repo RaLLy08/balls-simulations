@@ -97,3 +97,9 @@ input:checked + .slider::before {
     height: 10px;
     width: 10px;
 }
+
+.wrapper__panels {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
